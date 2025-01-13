@@ -6,6 +6,7 @@ import { v2 as cloudinary } from "cloudinary";
 
 import authSignup from "./routes/auth.routes.js";
 import userRoute from "./routes/users.routes.js";
+import postSchema from "./routes/post.routes.js";
 
 // import authRoutes from "./routes/auth.route.js";
 // import userRoutes from "./routes/user.route.js";
@@ -34,6 +35,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authSignup);
 app.use("/api/users", userRoute);
+app.use("/api/posts", postSchema);
 
 
 
