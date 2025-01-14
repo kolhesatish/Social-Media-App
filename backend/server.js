@@ -4,9 +4,10 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from "cloudinary";
 
-import authSignup from "./routes/auth.routes.js";
-import userRoute from "./routes/users.routes.js";
-import postSchema from "./routes/post.routes.js";
+import authSignup from "./routes/auth.route.js";
+import userRoute from "./routes/users.route.js";
+import postSchema from "./routes/post.route.js";
+import notificationGet from "./routes/notification.route.js";
 
 // import authRoutes from "./routes/auth.route.js";
 // import userRoutes from "./routes/user.route.js";
@@ -36,6 +37,7 @@ app.use(cookieParser());
 app.use("/api/auth", authSignup);
 app.use("/api/users", userRoute);
 app.use("/api/posts", postSchema);
+app.use("/api/notifications", notificationGet);
 
 
 
