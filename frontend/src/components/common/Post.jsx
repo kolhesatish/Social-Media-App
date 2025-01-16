@@ -7,12 +7,14 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast"
+import { formatPostDate } from "../utils/db/date";
 
 
 const Post = ({ post }) => {
 	const [comment, setComment] = useState("");
 	const {data: authUser} = useQuery({queryKey: ["authUser"] });
 	const queryClient = useQueryClient();
+	const isLiked = post.likes.includes(authUser._id);
 
 	const {mutate: deletePost, isPending: isDeleting } = useMutation({
 		mutationFn: async () => {
@@ -36,16 +38,95 @@ const Post = ({ post }) => {
 			toast.success("Post deleted successfully");
 			queryClient.invalidateQueries({ queryKey: ["posts"] });
 		},
-	})
+	});
+
+	const { mutate: likePost, isPending: isLiking } = useMutation({
+		mutationFn: async () => {
+			try {
+				const res = await fetch(`/api/posts/like/${post._id}`, {
+					method: "POST",
+				});
+				const data = await res.json();
+				if (!res.ok) {
+					throw new Error(data.error || "Something went wrong");
+				}
+				return data;
+			} catch (error) {
+				throw new Error(error);
+			}
+		},
+		onSuccess: (updatedLikes) => {
+			// this is not the best UX, bc it will refetch all posts
+			// queryClient.invalidateQueries({ queryKey: ["posts"] });
+
+			// instead, update the cache directly for that post
+			queryClient.setQueryData(["posts"], (oldData) => {
+				return oldData.map((p) => {
+					if (p._id === post._id) {
+						return { ...p, likes: updatedLikes };
+					}
+					return p;
+				});
+			});
+		},
+		onError: (error) => {
+			toast.error(error.message);
+		},
+	});
+
+	const { mutate: commentPost, isPending: isCommenting } = useMutation({
+		mutationFn: async () => {
+			try {
+				const res = await fetch(`/api/posts/comment/${post._id}`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ text: comment }),
+				});
+				const data = await res.json();
+
+				if (!res.ok) {
+					throw new Error(data.error || "Something went wrong");
+				}
+				return data;
+			} catch (error) {
+				throw new Error(error);
+			}
+		},
+		onSuccess: () => {
+			toast.success("Comment posted successfully");
+			setComment("");
+			queryClient.invalidateQueries({ queryKey: ["posts"] });
+			queryClient.setQueryData(["posts"], (oldData) => {
+				return oldData.map((p) => {
+					if (p._id === post._id) {
+						return { ...p, comments: [...p.comments, { text: comment, user: authUser }] };
+					}
+					return p;
+				});
+			})
+
+			// queryClient.setQueryData(["posts"], (oldData) => {
+			// 	return oldData.map((p) => {
+			// 		if (p._id === post._id) {
+			// 			return { ...p, likes: updatedLikes };
+			// 		}
+			// 		return p;
+			// 	});
+			// });
+		},
+		onError: (error) => {
+			toast.error(error.message);
+		},
+	});
+
 
 	const postOwner = post.user;
-	const isLiked = false;
 
 	const isMyPost = authUser._id === post.user._id;
 
-	const formattedDate = "1h";
-
-	const isCommenting = false;
+	const formattedDate = formatPostDate(post.createdAt);
 
 	const handleDeletePost = () => {
 		deletePost();
@@ -53,9 +134,14 @@ const Post = ({ post }) => {
 
 	const handlePostComment = (e) => {
 		e.preventDefault();
+		if(isCommenting) return;
+		commentPost();
 	};
 
-	const handleLikePost = () => {};
+	const handleLikePost = () => {
+		if (isLiking) return;
+		likePost();
+	};
 
 	return (
 		<>
@@ -129,7 +215,7 @@ const Post = ({ post }) => {
 															@{comment.user.username}
 														</span>
 													</div>
-													<div className='text-sm'>{comment.text}</div>
+													<div className='text-sm text-left'>{comment.text}</div>
 												</div>
 											</div>
 										))}
@@ -169,7 +255,7 @@ const Post = ({ post }) => {
 
 								<span
 									className={`text-sm text-slate-500 group-hover:text-pink-500 ${
-										isLiked ? "text-pink-500" : ""
+										isLiked ? "text-pink-500" : "text-slate-500"
 									}`}
 								>
 									{post.likes.length}
