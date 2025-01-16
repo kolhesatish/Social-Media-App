@@ -49,7 +49,7 @@ const Post = ({ post }) => {
 							</span>
 						)}
 					</div>
-					<div className='flex flex-col gap-3 overflow-hidden'>
+					<div className='flex flex-col gap-3 overflow-hidden text-left'>
 						<span>{post.text}</span>
 						{post.img && (
 							<img
