@@ -94,27 +94,19 @@ const Post = ({ post }) => {
 				throw new Error(error);
 			}
 		},
-		onSuccess: () => {
+		onSuccess: (commentPost) => {
 			toast.success("Comment posted successfully");
 			setComment("");
 			queryClient.invalidateQueries({ queryKey: ["posts"] });
 			queryClient.setQueryData(["posts"], (oldData) => {
 				return oldData.map((p) => {
 					if (p._id === post._id) {
-						return { ...p, comments: [...p.comments, { text: comment, user: authUser }] };
+						return { ...p, comments: [...p.comments, { text: commentPost, user: authUser }] };
 					}
 					return p;
 				});
 			})
 
-			// queryClient.setQueryData(["posts"], (oldData) => {
-			// 	return oldData.map((p) => {
-			// 		if (p._id === post._id) {
-			// 			return { ...p, likes: updatedLikes };
-			// 		}
-			// 		return p;
-			// 	});
-			// });
 		},
 		onError: (error) => {
 			toast.error(error.message);
