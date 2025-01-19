@@ -55,7 +55,8 @@ const ProfilePage = () => {
 	const isMyProfile = authUser._id === user?._id;
 	const memberSinceDate = formatMemberSinceDate(user?.createdAt);
 	const amIFollowing = authUser?.following.includes(user?._id);
-	
+	const heIsFollowing = user?.following.includes(authUser?._id);
+
 
 	const handleImgChange = (e, state) => {
 		const file = e.target.files[0];
@@ -144,8 +145,11 @@ const ProfilePage = () => {
 										onClick={() => follow(user?._id)}
 									>
 										{isPending && "Loading..."}
-										{!isPending && amIFollowing && "Unfollow"}
-										{!isPending && !amIFollowing && "Follow"}
+										{!isPending && amIFollowing && !heIsFollowing && "Unfollow"}
+										{!isPending && !amIFollowing && !heIsFollowing && "Follow"}
+										{!isPending && !amIFollowing && heIsFollowing && "Followback"}
+										{!isPending && amIFollowing && heIsFollowing && "Unfollow"}
+
 									</button>
 								)}
 								{(coverImg || profileImg) && (
