@@ -8,7 +8,7 @@ import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { IoSettingsOutline } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
-import { formatMemberSinceDate, formatPostDate } from "../../components/utils/db/date/index";
+import { formatPostDate } from "../../components/utils/db/date/index";
 
 
 const NotificationPage = () => {

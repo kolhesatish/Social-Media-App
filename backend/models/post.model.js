@@ -32,6 +32,12 @@ const postSchema = new mongoose.Schema(
 				},
 			},
 		],
+		savedPosts: [
+			{
+			  type: mongoose.Schema.Types.ObjectId,
+			  ref: "Post", // Reference to the Post model
+			},
+		],
 	},
 	{ timestamps: true }
 );
