@@ -27,8 +27,6 @@ const NotificationPage = () => {
 		},
 	});
 
-	const notificationTime = notifications?.createdAt ? formatMemberSinceDate(notifications.createdAt) : 'Notification time not available';
-
 
 	const { mutate: deleteNotifications } = useMutation({
 		mutationFn: async () => {
