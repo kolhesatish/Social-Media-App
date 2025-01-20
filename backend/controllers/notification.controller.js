@@ -38,3 +38,24 @@ export const deleteNotifications = async (req, res) => {
     }
 }
 
+
+export const deleteNotificationById = async (req, res) => {
+    try {
+        const notificationId = req.params.id;
+
+        if (!notificationId) {
+            return res.status(400).json({ error: "Notification ID is required" });
+        }
+
+        const deletedNotification = await Notification.findByIdAndDelete(notificationId);
+
+        if (!deletedNotification) {
+            return res.status(404).json({ error: "Notification not found" });
+        }
+
+        res.status(200).json({ message: "Notification deleted successfully", deletedNotification });
+    } catch (error) {
+        console.log("Error in deleteNotificationById controller: ", error.message);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};

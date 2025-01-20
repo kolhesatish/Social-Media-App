@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
@@ -52,6 +53,38 @@ const NotificationPage = () => {
 		},
 	});
 
+	const [deletingId, setDeletingId] = useState(null);
+
+	const { mutate: deleteNotification, isPending: isDeleting } = useMutation({
+		mutationFn: async (notificationId) => {
+			try {
+				const res = await fetch(`/api/notifications/${notificationId}`, {
+					method: "DELETE",
+				});
+
+				console.log(notificationId);
+
+				const data = await res.json();
+				if (!res.ok) {
+					throw new Error(data.error || "Something went wrong");
+				}
+
+				return data;
+
+			} catch (error) {
+				throw new Error(error.message || "Error deleting notification");
+			}
+		},
+		onSuccess: () => {
+			toast.success("Notification deleted successfully");
+			queryClient.invalidateQueries({ queryKey: ["notifications"] });
+			setDeletingId(null);
+		},
+		onError: () => {
+			setDeletingId(null); 
+		},
+	});
+
 	return (
 		<>
 			<div className='flex-[4_4_0] border-l border-r border-gray-700 min-h-screen'>
@@ -83,7 +116,7 @@ const NotificationPage = () => {
 							{notification.type === "follow" && <FaUser className='w-7 h-7 text-primary' />}
 							{notification.type === "like" && <FaHeart className='w-7 h-7 text-red-500' />}
 							<Link to={`/profile/${notification.from.username}`}>
-							<p className="text-right">{formatPostDate(notification.createdAt)}</p>
+								<p className="text-right">{formatPostDate(notification.createdAt)}</p>
 								<div className='avatar'>
 									<div className='w-8 rounded-full'>
 										<img src={notification.from.profileImg || "/avatar-placeholder.png"} />
@@ -94,7 +127,18 @@ const NotificationPage = () => {
 									{notification.type === "follow" ? "followed you" : "liked your post"}
 								</div>
 							</Link>
+							<button
+								onClick={() => {
+									setDeletingId(notification._id); // Set the currently deleting ID
+									deleteNotification(notification._id);
+								}}
+								className='text-red-500 hover:text-red-700'
+								disabled={deletingId === notification._id} // Disable only the button for the current notification
+							>
+								{deletingId === notification._id ? "Deleting..." : "Delete"}
+							</button>
 						</div>
+
 					</div>
 				))}
 			</div>

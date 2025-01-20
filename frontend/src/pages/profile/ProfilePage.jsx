@@ -149,7 +149,6 @@ const ProfilePage = () => {
 										{!isPending && !amIFollowing && !heIsFollowing && "Follow"}
 										{!isPending && !amIFollowing && heIsFollowing && "Followback"}
 										{!isPending && amIFollowing && heIsFollowing && "Unfollow"}
-
 									</button>
 								)}
 								{(coverImg || profileImg) && (
