@@ -11,6 +11,7 @@ import RightPanel from './components/common/RightPanal.jsx';
 
 import NotificationPage from './pages/notification/Notification.jsx';
 import ProfilePage from './pages/profile/ProfilePage.jsx';
+import GanerateContent from './pages/home/GanerateContent.jsx'
 
 import { Toaster } from "react-hot-toast";
 import { useQuery } from '@tanstack/react-query';
@@ -57,6 +58,7 @@ function App() {
         <Route path="/" element={authUser? <Home /> : <Login />} />
         <Route path="/signup" element={authUser? <Home /> : <Signup />} />
         <Route path="/login" element={authUser? <Home /> : <Login />} />
+        <Route path="/generate" element={authUser? <GanerateContent /> : <Home />} />
         <Route path="/notifications" element={authUser ? <NotificationPage /> : <Login />} />
         <Route path="/profile/:username" element={authUser ? <ProfilePage /> : <Login />} />
       </Routes>   

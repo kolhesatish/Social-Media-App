@@ -2,6 +2,7 @@ import Notification from "../models/notification.model.js";
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
 import { v2 as cloudinary } from "cloudinary";
+import axios from "axios";
 
 export const createPost = async (req, res) => {
 	try {
@@ -226,4 +227,42 @@ export const getUserPosts = async (req, res) => {
 		console.log("Error in getUserPosts controller: ", error);
 		res.status(500).json({ error: "Internal server error" });
 	}
+};
+
+ // Make sure the User model is correctly imported
+
+export const generateText = async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    // Ensure prompt is provided
+    if (!prompt) {
+      return res.status(400).json({ error: "Post must have text or image" });
+    }
+
+    // Prepare the API URL and prompt for content generation
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`;
+    const newPrompt = `${prompt} Generate short, simple, and impactful content using no more than 50 words.`;
+
+    // Ensure API Key is present
+    const API_KEY = process.env.GEMINI_API_KEY;
+    if (!API_KEY) {
+      console.error("❌ API Key is missing. Check your .env file.");
+      return res.status(500).json({ error: "API key missing" });
+    }
+
+    // Call the Gemini API
+    const response = await axios.post(API_URL, {
+      contents: [{ parts: [{ text: newPrompt }] }]
+    });
+
+    // Extract content from the API response
+    const contentAI = response.data.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
+
+    // Send the generated content back to the client
+    res.status(200).json({ generatedContent: contentAI });
+
+  } catch (error) {
+    console.error("❌ Error in generateText controller:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };

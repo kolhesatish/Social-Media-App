@@ -15,6 +15,7 @@ import notificationGet from "./routes/notification.route.js";
 // import notificationRoutes from "./routes/notification.route.js";
 
 import connectMongoDB from "./db/connectMongoDB.js";
+import { console } from "inspector";
 
 dotenv.config();
 
@@ -52,5 +53,6 @@ if (process.env.NODE_ENV === "production") {
 
 app.listen(PORT, () => {
 	console.log(`Server is running on port ${PORT}`);
+	
 	connectMongoDB();
 });
