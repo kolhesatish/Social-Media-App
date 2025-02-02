@@ -46,6 +46,7 @@ const CreatePost = () => {
 		try {
 			const res = await axios.post("/api/posts/generate", { prompt });
 			setText(res.data.generatedContent);
+			setPrompt("");
 			setIsPromptOpen(false); // Close pop-up after generating
 		} catch (error) {
 			console.error("Error fetching response:", error);
